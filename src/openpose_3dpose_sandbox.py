@@ -47,7 +47,7 @@ def read_openpose_json(smooth=True, *args):
         if not os.path.isfile(_file): raise Exception("No file found!!, {0}".format(_file))
         data = json.load(open(_file))
         #take first person
-        _data = data["people"][0]["pose_keypoints"]
+        _data = data["people"][0]["pose_keypoints_2d"]
         xy = []
         #ignore confidence score
         for o in range(0,len(_data),3):
@@ -255,7 +255,8 @@ def main(_):
             ax = plt.subplot(gs1[subplot_idx - 1], projection='3d')
             ax.view_init(18, -70)    
             logger.debug(np.min(poses3d))
-            if np.min(poses3d) < -1000:
+            before_pose = None
+            if np.min(poses3d) < -1000 and before_pose != None:
                 poses3d = before_pose
 
             p3d = poses3d
