@@ -68,13 +68,71 @@ def main(_):
                 #take first person
                 _data = data["people"][0]["pose_keypoints_2d"]
                 xy = []
-                #ignore confidence score
-                for o in range(0,len(_data),3):
-                    xy.append(_data[o])
-                    xy.append(_data[o+1])
+                if len(_data)>=53:
+                    #openpose incl. confidence score
+                    #ignore confidence score
+                    for o in range(0,len(_data),3):
+                        xy.append(_data[o])
+                        xy.append(_data[o+1])
+                else:
+                    #tf-pose-estimation
+                    xy = _data
 
                 frame_indx = re.findall("(\d+)", file_name)
-                frame = int(frame_indx[0])
+                frame = int(frame_indx[-1])
+                logger.debug("found {0} for frame {1}".format(xy, str(frame)))
+
+                #body_25 support, convert body_25 output format to coco
+                if len(xy)>54:
+                    _xy = xy[0:19*2]
+                    for x in range(len(xy)):
+                        #del jnt 8
+                        if x==8*2:
+                            del _xy[x]
+                        if x==8*2+1:
+                            del _xy[x]
+                        #map jnt 9 to 8
+                        if x==9*2:
+                            _xy[16] = xy[x]
+                            _xy[17] = xy[x+1]
+                        #map jnt 10 to 9
+                        if x==10*2:
+                            _xy[18] = xy[x]
+                            _xy[19] = xy[x+1]         
+                        #map jnt 11 to 10
+                        if x==11*2:
+                            _xy[20] = xy[x]
+                            _xy[21] = xy[x+1]
+                        #map jnt 12 to 11
+                        if x==12*2:
+                            _xy[22] = xy[x]
+                            _xy[23] = xy[x+1]
+                        #map jnt 13 to 12
+                        if x==13*2:
+                            _xy[24] = xy[x]
+                            _xy[25] = xy[x+1]         
+                        #map jnt 14 to 13
+                        if x==14*2:
+                            _xy[26] = xy[x]
+                            _xy[27] = xy[x+1]
+                        #map jnt 15 to 14
+                        if x==15*2:
+                            _xy[28] = xy[x]
+                            _xy[29] = xy[x+1]
+                        #map jnt 16 to 15
+                        if x==16*2:
+                            _xy[30] = xy[x]
+                            _xy[31] = xy[x+1]
+                        #map jnt 17 to 16
+                        if x==17*2:
+                            _xy[32] = xy[x]
+                            _xy[33] = xy[x+1]
+                        #map jnt 18 to 17
+                        if x==18*2:
+                            _xy[34] = xy[x]
+                            _xy[35] = xy[x+1]
+                    #coco 
+                    xy = _xy
 
                 joints_array = np.zeros((1, 36))
                 joints_array[0] = [0 for i in range(36)]
@@ -167,7 +225,7 @@ def main(_):
 
 if __name__ == "__main__":
 
-    openpose_output_dir = FLAGS.openpose
+    openpose_output_dir = FLAGS.pose_estimation_json
     
     level = {0:logging.ERROR,
              1:logging.WARNING,

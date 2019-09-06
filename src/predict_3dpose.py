@@ -52,10 +52,13 @@ tf.app.flags.DEFINE_string("data_dir",   "data/h36m/", "Data directory")
 tf.app.flags.DEFINE_string("train_dir", "experiments", "Training directory.")
 
 # openpose
-tf.app.flags.DEFINE_string("openpose", "openpose_output", "openpose output Data directory")
+tf.app.flags.DEFINE_string("pose_estimation_json", "/tmp/", "pose estimation json output directory, openpose or tf-pose-estimation")
+tf.app.flags.DEFINE_boolean("interpolation", False, "interpolate openpose json")
+tf.app.flags.DEFINE_float("multiplier", 0.1, "interpolation frame range")
+tf.app.flags.DEFINE_boolean("write_gif", False, "write final anim gif")
 tf.app.flags.DEFINE_integer("gif_fps", 30, "output gif framerate")
 tf.app.flags.DEFINE_integer("verbose", 2, "0:Error, 1:Warning, 2:INFO*(default), 3:debug")
-
+tf.app.flags.DEFINE_boolean("cache_on_fail", True, "caching last valid frame on invalid frame")
 
 # Train or load
 tf.app.flags.DEFINE_boolean("sample", False, "Set to True for sampling.")

@@ -52,27 +52,68 @@ This will produce a visualization similar to this:
 ![Visualization example](/imgs/viz_example.png?raw=1)
 
 
-### OpenPose to 3d-Pose-Baseline
+### [openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose.git)/[tf-pose-estimation](https://github.com/ArashHosseini/tf-pose-estimation)/[keras_Realtime_Multi-Person_Pose_Estimation](https://github.com/ArashHosseini/keras_Realtime_Multi-Person_Pose_Estimation) to 3d-Pose-Baseline
 
-<p align="left">
-    <img src="/imgs/open_pose_input.gif", width="360">
+
+### Caffe
+
+1. setup [openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose.git) and use `--write_json` flag to export Pose Keypoints.
+
+or
+
+### Tensorflow
+
+2. fork [tf-pose-estimation](https://github.com/ArashHosseini/tf-pose-estimation) and add `--output_json` flag to export Pose Keypoints like `python run_webcam.py --model=mobilenet_thin --resize=432x368 --camera=0 --output_json /path/to/directory`, check [diff](https://github.com/ArashHosseini/tf-pose-estimation/commit/eb25b197b3c0ed2d424513dbbe2565e910a736d1)
+
+or
+
+### Keras
+
+3. fork [keras_Realtime_Multi-Person_Pose_Estimation](https://github.com/ArashHosseini/keras_Realtime_Multi-Person_Pose_Estimation) and use `python demo_image.py --image sample_images/p1.jpg` for single image or `python demo_camera.py` for webcam feed. check [keypoints diff](https://github.com/ArashHosseini/keras_Realtime_Multi-Person_Pose_Estimation/commit/b5c76a35239aa7496010ff7f5e0b5fc0a9cf59a0) and [webcam diff](https://github.com/ArashHosseini/keras_Realtime_Multi-Person_Pose_Estimation/commit/3e414e68047fd7575bd8832ba776b0b5a93f2eea) for more info.
+
+4. Download Pre-trained model below
+
+5. simply run
+
+`python src/openpose_3dpose_sandbox.py --camera_frame --residual --batch_norm --dropout 0.5 --max_norm --evaluateActionWise --use_sh --epochs 200 --load 4874200 --pose_estimation_json /path/to/json_directory --write_gif --gif_fps 24 `, optional `--verbose 3` for debug and for interpolation add `--interpolation` and use `--multiplier`. 
+
+6. or for 'Real Time'
+
+`python3.5 src/openpose_3dpose_sandbox_realtime.py --camera_frame --residual --batch_norm --dropout 0.5 --max_norm --evaluateActionWise --use_sh --epochs 200 --load 4874200 --pose_estimation_json /path/to/json_directory `
+
+
+### Export to DCC application and build skeleton
+
+1. use `--write_json` and `--write_images` flag to export keypoints and frame image from openpose, image will be used as imageplane inside maya.
+2. run `python src/openpose_3dpose_sandbox.py --camera_frame --residual --batch_norm --dropout 0.5 --max_norm --evaluateActionWise --use_sh --epochs 200 --load 4874200 --pose_estimation_json /path/to/json_directory --write_gif --gif_fps 24 `.
+3. for interpolation add `--interpolation` and use `--multiplier 0.5`.
+
+3d pose baseline now creates a json file `3d_data.json` with `x, y, z` coordinates inside maya folder
+
+4. change variables in `maya/maya_skeleton.py`. set `threed_pose_baseline` to main 3d-pose-baseline and `openpose_images` to same path as `--write_images` (step 1)
+5. open maya and import `maya/maya_skeleton.py`. 
+
+`maya_skeleton.py` will load the data(`3d_data.json`) to build a skeleton, parenting joints and setting the predicted animation provided by 3d-pose-baseline. 
+
+6. create a imageplane and use created images inside `maya/image_plane/` as sequence.
+
+<p align="center">
+    <img src="/imgs/maya_skl.gif", width="360">
 </p>
 
-<p align="left">
-    <img src="/imgs/output.gif", width="360">
+7. "real-time" stream, openpose > 3d-pose-baseline > maya (soon)
+
+8. implemented unity stream, check work of Zhenyu Chen [openpose_3d-pose-baseline_unity3d](https://github.com/zhenyuczy/openpose_3d-pose-baseline_unity3d)
+
+
+### Result
+
+<p align="center">
+	<img src="/imgs/interpolation.gif", width="360">
 </p>
 
-1. Setup [OpenPose](https://github.com/ArashHosseini/openpose) and use `--write_json` flag to export Pose Keypoints. 
-2. Download Pre-trained model below, simply run
 
-`python src/openpose_3dpose_sandbox.py --camera_frame --residual --batch_norm --dropout 0.5 --max_norm --evaluateActionWise --use_sh --epochs 200 --load 4874200 --openpose /path/to/openpose/output/json_directory --gif_fps 30` , optional also `--verbose 3` for debug,
-
-smoothing curves by median value
-
-![Fps drops](/imgs/dirty_plot.png?raw=1)
-
-![Smoothing Fps](/imgs/smooth_plot.png?raw=1)
-
+![Fps drops](/imgs/dirty_plot.png?raw=1)![holding](/imgs/smooth_plot.png?raw=2) ![interpolate](/imgs/interpolate_plot.png?raw=3)
 
 ### Training
 
