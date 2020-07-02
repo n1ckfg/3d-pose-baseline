@@ -151,7 +151,6 @@ def read_openpose_json(smooth=True, *args):
 
     ### smooth by median value, n frames 
     for frame, xy in cache.items():
-
         # create neighbor array based on frame index
         forward, back = ([] for _ in range(2))
 
@@ -390,18 +389,21 @@ def main(_):
                     poses3d = before_pose
 
             p3d = poses3d
+            logger.info("frame score {0}".format(np.min(poses3d)))
+            x,y,z = [[] for _ in range(3)]
             if not poses3d is None:
                 to_export = poses3d.tolist()[0]
-                x,y,z = [[] for _ in range(3)]
-                for o in range(0, len(to_export), 3):
-                    x.append(to_export[o])
-                    y.append(to_export[o+1])
-                    z.append(to_export[o+2])
-                export_units[frame]={}
-                for jnt_index, (_x, _y, _z) in enumerate(zip(x,y,z)):
-                    export_units[frame][jnt_index] = {"translate": [_x, _y, _z]}
+            else:
+                to_export = [0.0 for _ in range(96)]
+            logger.info("export {0}".format(to_export))
+            for o in range(0, len(to_export), 3):
+                x.append(to_export[o])
+                y.append(to_export[o+1])
+                z.append(to_export[o+2])
 
-
+            export_units[frame]={}
+            for jnt_index, (_x, _y, _z) in enumerate(zip(x,y,z)):
+                export_units[frame][jnt_index] = {"translate": [_x, _y, _z]}
                 viz.show3Dpose(p3d, ax, lcolor="#9b59b6", rcolor="#2ecc71")
 
             pngName = 'png/pose_frame_{0}.png'.format(str(frame).zfill(12))
